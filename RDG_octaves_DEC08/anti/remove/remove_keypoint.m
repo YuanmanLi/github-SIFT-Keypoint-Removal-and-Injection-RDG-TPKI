@@ -55,7 +55,8 @@ for z =1:num_points
     if par.cur_o ==1 || par.cur_o ==0
         clip_size = 16; %change it as 32 for accuracy
     else
-        clip_size = max(size(I_groundtruth));
+        %clip_size = max(size(I_groundtruth);
+        clip_size = floor(max(size(I_groundtruth))/2);
     end  
     temp1 = current_point(1); temp2 = current_point(2);
     temp1 = ceil(temp1*(2^(par.cur_o-1))); temp2 = ceil(temp2*(2^(par.cur_o-1)));  %map the keypoint location to orginal image 
@@ -80,20 +81,23 @@ for z =1:num_points
     %%%%%%%%%%calculate location of variables%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if par.cur_o ==0 || par.cur_o ==1    
          var_indx_r_ori = temp1 - floor(win_var(1)/2) : temp1 + floor(win_var(1)/2);                        %the variable location is the original image
-         var_indx_c_ori = temp2 - floor(win_var(2)/2) : temp2 + floor(win_var(2)/2);      
+         var_indx_c_ori = temp2 - floor(win_var(2)/2) : temp2 + floor(win_var(2)/2); 
+         var_indx_r  = var_indx_r_ori  - clip_indx_r(1) + 1;              
+         var_indx_c  = var_indx_c_ori - clip_indx_c(1) + 1;
     else
         var_indx_r1 = current_point(1) - floor(win_var(1)/2) : current_point(1) + floor(win_var(1)/2);
         var_indx_c1 = current_point(2) - floor(win_var(2)/2) : current_point(2) + floor(win_var(2)/2);       
-        var_indx_r_ori = var_indx_r1 * step -1;   %remap the variable location to original image
-        var_indx_c_ori = var_indx_c1 * step-1;
+        var_indx_r_ori  = var_indx_r1 * step -1;   %remap the variable location to original image
+        var_indx_c_ori  = var_indx_c1 * step-1;
+        var_indx_r = var_indx_r_ori;
+        var_indx_c = var_indx_c_ori;
     end
-        var_indx_r  = var_indx_r_ori  - clip_indx_r(1) + 1;              
-        var_indx_c  = var_indx_c_ori - clip_indx_c(1) + 1;
+
     
     %%%%%%%%%%%%%%construct R for 27 pixels%%%%%%%%%%%%%%%
     k = 0;                                                                                              % how many element in patch
     R = cell(1,blkwin(1)*blkwin(2));                                                                                   %9 matrix extractor for a given 3*3 patch
-    cur_o_size =  size(I)./(2^(par.cur_o-1));
+    cur_o_size =  ceil(size(I)./(2^(par.cur_o-1)));
     for i = 1:blkwin(2)
         for j = 1: blkwin(1)
             k = k +1;
